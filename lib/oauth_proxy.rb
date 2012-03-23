@@ -27,7 +27,7 @@ module OauthProxy
         halt 404, "Slug not found"
       end
 
-      OauthProxy.callbacks[params['slug']].q.enq :done
+      OauthProxy.callbacks[params['slug']].q.enq params['code']
     end
 
     get '/' do

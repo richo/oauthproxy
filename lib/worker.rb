@@ -14,12 +14,10 @@ module OauthProxy
     def handle(s)
       req = Request.new
       id = ::OauthProxy.remember(req)
-      s.puts("#{id} Added to queue")
+      s.puts(id)
       # Bind until we're done here- work out how to poll effciently
-      req.q.deq
-      s.puts("#{id} Processed")
-      #
-      # In the webapp we call req.q.enq :status
+      ret = req.q.deq
+      s.puts(ret)
     ensure
       ::OauthProxy.forget(id)
       s.close
