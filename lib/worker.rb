@@ -5,7 +5,7 @@ module OauthProxy
   class Worker
 
     def run
-      server = TCPServer.new 2000
+      server = TCPServer.new OauthProxy::REQUEST_PORT
       loop do
         Thread.start(server.accept) {|client| handle(client)}
       end
