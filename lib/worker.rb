@@ -14,10 +14,12 @@ module OauthProxy
     def handle(s)
       req = Request.new
       id = ::OauthProxy.remember(req)
-      s.puts(id)
+      # Writes 128 bytes
+      s.print(id)
       # Bind until we're done here- work out how to poll effciently
       ret = req.q.deq
-      s.puts(ret)
+      # Writes 20 bytes
+      s.print(ret)
     ensure
       ::OauthProxy.forget(id)
       s.close
