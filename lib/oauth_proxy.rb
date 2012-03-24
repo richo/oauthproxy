@@ -28,7 +28,7 @@ module OauthProxy
       end
 
       OauthProxy.callbacks[params['slug']].q.enq params['code']
-      "Ideally, github_cli should now be configured. Enjoy!"
+      "Ideally, your oauth app should now be configured. Enjoy!"
     end
 
     get '/' do
