@@ -32,7 +32,7 @@ module OauthProxy
     end
 
     get '/' do
-      "Rawr at index!"
+      haml :index
     end
   end
 end
