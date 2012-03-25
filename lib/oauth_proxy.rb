@@ -6,9 +6,10 @@ module OauthProxy
 
   @uuid = UUID.new
 
-  attr_reader :callbacks
+  attr_reader :callbacks, :tokens
 
   @callbacks = {}
+  @tokens = {}
 
   def remember(v)
     id = @uuid.generate
@@ -27,8 +28,19 @@ module OauthProxy
         halt 404, "Slug not found"
       end
 
-      OauthProxy.callbacks[params['slug']].q.enq params['code']
+      OauthProxy.tokens[params['slug']] = params['code']
       "Ideally, your oauth app should now be configured. Enjoy!"
+    end
+
+    get '/tokens/:slug' do
+      # Need to verify that we're the original user in some way as well. IP
+      # based would make sense?
+      unless OauthProxy.tokens.include?(params['slug'])
+        halt 404, "Slug not found"
+      end
+
+      # TODO Block on the request for the slug
+      OauthProxy.tokens.include?(params['slug'])
     end
 
     get '/' do
