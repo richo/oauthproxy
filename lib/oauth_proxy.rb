@@ -28,7 +28,7 @@ module OauthProxy
       end
 
       OauthProxy.callbacks[params['slug']].q.enq params['code']
-      "Ideally, your oauth app should now be configured. Enjoy!"
+      haml :configured
     end
 
     get '/' do
