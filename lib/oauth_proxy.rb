@@ -1,5 +1,6 @@
 require 'uuid'
 require 'sinatra/base'
+require 'timeout'
 
 module OauthProxy
   extend self
@@ -28,19 +29,33 @@ module OauthProxy
         halt 404, "Slug not found"
       end
 
-      OauthProxy.tokens[params['slug']] = params['code']
+      OauthProxy.callbacks[params['slug']].q.enq params['code']
       "Ideally, your oauth app should now be configured. Enjoy!"
     end
 
     get '/tokens/:slug' do
+      slug = params['slug']
       # Need to verify that we're the original user in some way as well. IP
       # based would make sense?
-      unless OauthProxy.tokens.include?(params['slug'])
+      unless OauthProxy.callbacks.include?(params['slug'])
         halt 404, "Slug not found"
       end
 
-      # TODO Block on the request for the slug
-      OauthProxy.tokens.include?(params['slug'])
+      # Race conditions abound
+      callback = OauthProxy.callbacks[slug]
+      OauthProxy.reject! { |n| n == slug }
+
+      # Control returns here.. Shit.
+      Thread.start(callback) do |callback|
+        begin
+          Timeout::timeout(15) {
+            return callback.q.deq
+          }
+        rescue Timeout::Error
+          # TODO Retry-After header
+          halt 504, "Upstream did not reply in an orderly fashion"
+        end
+      end
     end
 
     get '/' do
